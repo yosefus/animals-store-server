@@ -4,12 +4,14 @@ import { Model } from 'mongoose';
 import { Category, CategoryDocument } from './category.schema';
 import { CreateCategoryDto } from './category.dto';
 import categories from './fakeData';
+import { Animal, AnimalDocument } from 'src/animal/animal.schema';
 
 @Injectable()
 export class CategoryService {
   constructor(
     @InjectModel(Category.name) private categoryModel: Model<CategoryDocument>,
-  ) {}
+    @InjectModel(Animal.name) private animalModel: Model<AnimalDocument>,
+  ) { }
 
   async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
     const createdCategory = new this.categoryModel(createCategoryDto);
@@ -20,8 +22,13 @@ export class CategoryService {
     return this.categoryModel.find().exec();
   }
 
-  async findOne(slug: string): Promise<Category> {
-    return this.categoryModel.findOne({ slug }).exec();
+  async findOne(slug: string, withAnimals = false): Promise<{ category: Category, animals?: Animal[] } | Category> {
+    const category = await this.categoryModel.findOne({ slug }).exec();
+    if (withAnimals) {
+      const animals = await this.animalModel.find({ category: category._id }).exec();
+      return { category, animals };
+    }
+    return category;
   }
 
   async update(slug: string, updateCategoryDto: CreateCategoryDto): Promise<Category> {
@@ -30,9 +37,9 @@ export class CategoryService {
 
   async remove(slug: string): Promise<Category> {
     return this.categoryModel.findOneAndDelete({ slug }).exec();
-   }
-   
-   async test() {      
-      return this.categoryModel.create(categories);
-   }
+  }
+
+  async test() {
+    return this.categoryModel.create(categories);
+  }
 }
