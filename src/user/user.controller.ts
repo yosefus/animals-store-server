@@ -1,6 +1,6 @@
 import { Controller, Get, UseGuards } from '@nestjs/common';
-import { ClerkAuthGuard } from 'src/clerk/clerk.guard';
 import { UserService } from './user.service';
+import { ClerkAuthGuard } from '../clerk/clerk.guard';
 
 @Controller('user')
 export class UserController {
