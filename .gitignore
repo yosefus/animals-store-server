@@ -13,7 +13,7 @@ lerna-debug.log*
 .env
 
 # TODO
-/src/user
+# /src/user
 /src/auth
 
 # OS
