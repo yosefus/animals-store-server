@@ -1,11 +1,10 @@
 import { Module } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 import { MongooseModule } from '@nestjs/mongoose';
-import { UserService } from './user.service';
 import { UserController } from './user.controller';
 import { User, UserSchema } from './user.schema';
-import { JwtModule } from '@nestjs/jwt';
-import { JwtStrategy } from '../auth/jwt.strategy';
-import { ConfigService } from '@nestjs/config';
+import { UserService } from './user.service';
 
 @Module({
   imports: [
@@ -16,7 +15,7 @@ import { ConfigService } from '@nestjs/config';
     }),
   ],
   controllers: [UserController],
-  providers: [UserService, JwtStrategy, ConfigService],
+  providers: [UserService,  ConfigService],
   exports: [UserService],
 })
 export class UserModule {}
