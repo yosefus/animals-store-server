@@ -1,6 +1,5 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import * as cookieParser from 'cookie-parser';
 import { clerkMiddleware } from '@clerk/express';
 
 
@@ -14,10 +13,7 @@ async function bootstrap() {
   });
 
   app.use(clerkMiddleware());
-
-  app.use(cookieParser());
-
-
+  
   await app.listen(3000);
 }
 
