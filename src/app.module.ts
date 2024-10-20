@@ -10,7 +10,6 @@ import { AnimalService } from './animal/animal.service';
 import { AnimalModule } from './animal/animal.module';
 import { Connection } from 'mongoose';
 import { UserModule } from './user/user.module';
-import * as cookieParser from 'cookie-parser';
 
 
 @Module({
@@ -35,10 +34,7 @@ import * as cookieParser from 'cookie-parser';
   ],
   controllers: [AppController],
   providers: [
-    AppService, {
-    provide: 'APP_MIDDLEWARE',
-    useValue: cookieParser(),
-    },
+    AppService,
   ],
 })
 export class AppModule { }
