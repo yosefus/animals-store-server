@@ -1,5 +1,5 @@
-import { Injectable, CanActivate, ExecutionContext, UnauthorizedException } from '@nestjs/common';
-import { clerkClient, verifyToken } from '@clerk/clerk-sdk-node';
+import { clerkClient } from '@clerk/express';
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { UserService } from 'src/user/user.service';
 
@@ -10,23 +10,18 @@ export class ClerkAuthGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest();
     
-    const token =  request.cookies['__session'];  
-
-    if (!token) 
-      throw new UnauthorizedException('No token provided');
+    // Ensure clerkMiddleware has already been applied globally
+    const auth = request.auth;
+    if (!auth || !auth.userId) {
+      throw new UnauthorizedException('Unauthorized');
+    }
 
     try {
-      const payload = await verifyToken(token, { jwtKey: this.configService.get('CLERK_JWT_KEY') });
-      
-      if (!payload) 
-        throw new UnauthorizedException('Invalid token');
-      
-      const clerkUser = await clerkClient.users.getUser(payload.sub);
-      
+      // Fetch the Clerk user by userId
+      const clerkUser = await clerkClient.users.getUser(auth.userId);
       let user = await this.userService.findUserByClerkId(clerkUser.id);
 
-      console.log(clerkUser);
-      
+      // If the user doesn't exist in your database, create a new one
       if (!user) {
         user = await this.userService.createUser({
           clerkUserId: clerkUser.id,
@@ -35,13 +30,12 @@ export class ClerkAuthGuard implements CanActivate {
           email: clerkUser.emailAddresses[0]?.emailAddress || '',
         });
       }
-      console.log({user});
-      
+
       request.user = user;
       return true;
     } catch (error) {
       console.error(error);
-      throw new UnauthorizedException('Invalid token');
+      throw new UnauthorizedException('Error authenticating user');
     }
   }
 }

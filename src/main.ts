@@ -1,6 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as cookieParser from 'cookie-parser';
+import { clerkMiddleware } from '@clerk/express';
+
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -10,6 +12,8 @@ async function bootstrap() {
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
     credentials: true, // Allow credentials (cookies, authorization headers, etc.)
   });
+
+  app.use(clerkMiddleware());
 
   app.use(cookieParser());
 
